@@ -27,7 +27,13 @@ export const getCurrentUser = async (session: DbAuthSession<string>) => {
 
   return await db.user.findUnique({
     where: { id: session.id },
-    select: { id: true, email: true, organizations: true, roles: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      organizations: true,
+      roles: true,
+    },
   })
 }
 

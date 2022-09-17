@@ -60,7 +60,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               </MenuButton>
               <MenuList>
                 <MenuItem>
-                  <Link to={routes.home()}>Settings</Link>
+                  <Link to={routes.settings()}>Settings</Link>
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={logOut}>Logout</MenuItem>
