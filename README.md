@@ -13,6 +13,7 @@ yarn rw g dbAuth
 ### Set up DB by Docker
 ```sh
 docker-compose run -p 5432:5432 -d postgres
+yarn rw prisma migrate dev
 yarn rw prisma db seed
 
 docker exec -it <CONTAINER_ID> psql -U postgres
@@ -24,12 +25,23 @@ yarn rw dev
 ```
 
 ## How to develop App
-### Create a new page
 ```sh
+# create a new page
 yarn rw g page home /
+
+# create a new layout
+yarn rw g layout main
+
+# create a new stuff with scaffold
+yarn rw g scaffold post
 ```
 
-### Create a new layout
+### Frontend
 ```sh
-yarn rw g layout main
+yarn rw storybook
+```
+
+### Testing
+```sh
+yarn rw test
 ```

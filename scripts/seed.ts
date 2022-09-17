@@ -1,38 +1,121 @@
-import type { Prisma } from '@prisma/client'
+import { Action, Domain } from '@prisma/client'
 import { db } from 'api/src/lib/db'
+import { logger } from 'api/src/lib/logger'
+
+import { hashPassword } from '@redwoodjs/api'
+// import CryptoJS from 'crypto-js'
 
 export default async () => {
   try {
-    //
-    // Manually seed via `yarn rw prisma db seed`
-    // Seeds automatically with `yarn rw prisma migrate dev` and `yarn rw prisma migrate reset`
-    //
-    // Update "const data = []" to match your data model and seeding needs
-    //
-    const data: Prisma.UserExampleCreateArgs['data'][] = [
-      // To try this example data with the UserExample model in schema.prisma,
-      // uncomment the lines below and run 'yarn rw prisma migrate dev'
-      //
-      // { name: 'alice', email: 'alice@example.com' },
-      // { name: 'mark', email: 'mark@example.com' },
-      // { name: 'jackie', email: 'jackie@example.com' },
-      // { name: 'bob', email: 'bob@example.com' },
-    ]
-    console.log(
-      "\nUsing the default './scripts/seed.{js,ts}' template\nEdit the file to add seed data\n"
-    )
+    const promises: any[] = []
+    for (const domain of Object.keys(Domain) as (keyof typeof Domain)[]) {
+      for (const action of Object.keys(Action) as (keyof typeof Action)[]) {
+        const name = `${domain}${
+          action.charAt(0).toUpperCase() + action.slice(1)
+        }`
+        if (!(await db.ability.findUnique({ where: { name } }))) {
+          promises.push(
+            db.ability.create({
+              data: {
+                name,
+                domain,
+                action,
+              },
+            })
+          )
+        }
+      }
+    }
+    await Promise.allSettled(promises)
+    logger.debug({ data: {} }, 'Created abilities')
 
-    // Note: if using PostgreSQL, using `createMany` to insert multiple records is much faster
-    // @see: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#createmany
-    Promise.all(
-      //
-      // Change to match your data model and seeding needs
-      //
-      data.map(async (data: Prisma.UserExampleCreateArgs['data']) => {
-        const record = await db.userExample.create({ data })
-        console.log(record)
-      })
-    )
+    const organization = await db.organization.upsert({
+      where: {
+        organizationCode: '0000',
+      },
+      create: {
+        organizationCode: '0000',
+        name: 'sample organization',
+      },
+      update: {},
+    })
+    logger.debug({ data: {} }, 'Created organizations')
+
+    const queryAbilities = await db.ability.findMany({
+      where: {
+        action: 'query',
+      },
+      select: {
+        id: true,
+      },
+    })
+    const mutateAbilities = await db.ability.findMany({
+      where: {
+        action: 'mutate',
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    await db.role.upsert({
+      where: {
+        organizationCode_name: {
+          organizationCode: '0000',
+          name: 'viewer',
+        },
+      },
+      create: {
+        organizationCode: '0000',
+        name: 'viewer',
+        abilities: {
+          connect: queryAbilities,
+        },
+      },
+      update: {},
+    })
+    const adminRole = await db.role.upsert({
+      where: {
+        organizationCode_name: {
+          organizationCode: '0000',
+          name: 'admin',
+        },
+      },
+      create: {
+        organizationCode: '0000',
+        name: 'admin',
+        abilities: {
+          connect: mutateAbilities,
+        },
+      },
+      update: {},
+    })
+    logger.debug({ data: {} }, 'Created roles')
+
+    const [hashedPassword, salt] = hashPassword('twixrox')
+    await db.user.upsert({
+      where: {
+        email: 'kody@test.redwoodjs.com',
+      },
+      create: {
+        name: 'kody',
+        email: 'kody@test.redwoodjs.com',
+        hashedPassword,
+        salt,
+        roles: {
+          connect: {
+            id: adminRole.id,
+          },
+        },
+        organizations: {
+          connect: {
+            id: organization.id,
+          },
+        },
+      },
+      update: {},
+    })
+    logger.debug({ data: {} }, 'Created users')
 
     // If using dbAuth and seeding users, you'll need to add a `hashedPassword`
     // and associated `salt` to their record. Here's how to create them using
@@ -57,7 +140,17 @@ export default async () => {
     //     })
     //   }
   } catch (error) {
-    console.warn('Please define your seed data.')
-    console.error(error)
+    logger.error(error)
   }
 }
+
+// https://github.com/redwoodjs/redwood/issues/5793
+// https://github.com/redwoodjs/redwood/blob/main/packages/api/src/functions/dbAuth/DbAuthHandler.ts#L1288
+// const _hashPassword = (text: string, salt?: string) => {
+//   const useSalt = salt || CryptoJS.lib.WordArray.random(128 / 8).toString()
+
+//   return [
+//     CryptoJS.PBKDF2(text, useSalt, { keySize: 256 / 32 }).toString(),
+//     useSalt,
+//   ]
+// }

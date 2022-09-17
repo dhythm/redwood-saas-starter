@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -8,11 +8,72 @@ generator client {
   binaryTargets = "native"
 }
 
-// Define your own datamodels here and run `yarn redwood prisma migrate dev`
-// to create migrations for them and apply to your dev DB.
-// TODO: Please remove the following example:
-model UserExample {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Ability {
+  id               String             @id @default(uuid())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  name             String
+  domain           Domain
+  action           Action
+  roles            Role[]
+  abilitiesOnRoles AbilitiesOnRoles[]
+
+  @@unique([name])
+}
+
+model Role {
+  id               String             @id @default(uuid())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  organizationCode String
+  name             String
+  users            User[]
+  abilities        Ability[]
+  abilitiesOnRoles AbilitiesOnRoles[]
+
+  @@unique([organizationCode, name])
+}
+
+model AbilitiesOnRoles {
+  role       Role     @relation(fields: [roleId], references: [id])
+  roleId     String
+  ability    Ability  @relation(fields: [abilityId], references: [id])
+  abilityId  String
+  assignedAt DateTime @default(now())
+
+  @@id([roleId, abilityId])
+}
+
+model Organization {
+  id               String   @id @default(uuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  organizationCode String   @unique
+  name             String
+  users            User[]
+}
+
+model User {
+  id                  String         @id @default(uuid())
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  organizations       Organization[]
+  name                String?
+  email               String
+  hashedPassword      String
+  salt                String
+  resetToken          String?
+  resetTokenExpiresAt DateTime?
+  roles               Role[]
+
+  @@unique([email])
+}
+
+enum Action {
+  query
+  mutate
+}
+
+enum Domain {
+  settings
 }
