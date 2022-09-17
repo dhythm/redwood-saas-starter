@@ -2175,6 +2175,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@chakra-ui/icon@npm:3.0.9":
+  version: 3.0.9
+  resolution: "@chakra-ui/icon@npm:3.0.9"
+  dependencies:
+    "@chakra-ui/shared-utils": 2.0.1
+  peerDependencies:
+    "@chakra-ui/system": ">=2.0.0"
+    react: ">=18"
+  checksum: 3944a836c3c7136da108f8f4fe40db1a31652df1b7dab193c6a50776a8e7ef326af1a159754cf08cdec1503e81579c6bfe518ce7d002a0393faaa774a7f35c43
+  languageName: node
+  linkType: hard
+
+"@chakra-ui/icons@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "@chakra-ui/icons@npm:2.0.9"
+  dependencies:
+    "@chakra-ui/icon": 3.0.9
+  peerDependencies:
+    "@chakra-ui/system": ">=2.0.0"
+    react: ">=18"
+  checksum: 778b239a3a3ba595320043db6ab89f52a5c44eec3292ea74aacc9012c0104e341f725c47c325f4262d441ffdafe133c7ad5b5870f7b4d0ea45db9cccb92ada3f
+  languageName: node
+  linkType: hard
+
 "@chakra-ui/image@npm:1.1.10":
   version: 1.1.10
   resolution: "@chakra-ui/image@npm:1.1.10"
@@ -2498,6 +2522,13 @@ __metadata:
     "@chakra-ui/system": ">=1.0.0"
     react: ">=16.8.6"
   checksum: 6af7f647a5a6038f3b439fb0eb57715d25ba84992ff00c22e48e3ee87ded2d48548618ed852ba8d36c28c5ea2dc2636d9c3d8774999b120290abf00415d7752f
+  languageName: node
+  linkType: hard
+
+"@chakra-ui/shared-utils@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@chakra-ui/shared-utils@npm:2.0.1"
+  checksum: 66c76a6b7ac8e2a089ed484bc0c53cd2c83733582e1ee34a9dca3b3684208fbfe493cd4a0f288a5139ab218b1e1da412d334cd12a69e56d264118602f80124de
   languageName: node
   linkType: hard
 
@@ -22001,6 +22032,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
+    "@chakra-ui/icons": ^2.0.9
     "@redwoodjs/core": 3.0.1
   languageName: unknown
   linkType: soft
