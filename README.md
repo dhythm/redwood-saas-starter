@@ -4,8 +4,10 @@
 yarn create redwood-app redwood-saas-starter --typescript
 cd redwood-saas-starter
 yarn rw setup ui chakra-ui
+yarn add @chakra-ui/icons
 yarn rw setup auth dbAuth
 yarn rw g dbAuth
+yarn add recoil
 ```
 
 ## Getting Started
