@@ -13,6 +13,7 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Select,
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
@@ -26,7 +27,7 @@ type MainLayoutProps = {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { logOut } = useAuth()
+  const { currentUser, logOut } = useAuth()
 
   return (
     <>
@@ -41,6 +42,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           />
           <HStack spacing={8} alignItems={'center'}>
             <Box>Logo</Box>
+            <Select bg="white" placeholder=" ">
+              {currentUser.organizations.map((organization) => (
+                <option key={organization.id} value={organization.id}>
+                  {organization.name}
+                </option>
+              ))}
+            </Select>
           </HStack>
           <Flex alignItems={'center'}>
             <Menu>
