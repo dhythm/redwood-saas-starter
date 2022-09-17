@@ -7,7 +7,8 @@ import {
   Button,
   Flex,
   HStack,
-  IconButton, Menu,
+  IconButton,
+  Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
@@ -16,12 +17,16 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 
+import { useAuth } from '@redwoodjs/auth'
+import { Link, routes } from '@redwoodjs/router'
+
 type MainLayoutProps = {
   children?: ReactNode
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { logOut } = useAuth()
 
   return (
     <>
@@ -54,10 +59,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 />
               </MenuButton>
               <MenuList>
-                <MenuItem>Link 1</MenuItem>
-                <MenuItem>Link 2</MenuItem>
+                <MenuItem>
+                  <Link to={routes.home()}>Settings</Link>
+                </MenuItem>
                 <MenuDivider />
-                <MenuItem>Link 3</MenuItem>
+                <MenuItem onClick={logOut}>Logout</MenuItem>
               </MenuList>
             </Menu>
           </Flex>
