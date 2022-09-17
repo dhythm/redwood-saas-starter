@@ -17,9 +17,12 @@ import {
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
+import { useRecoilState, useResetRecoilState } from 'recoil'
 
 import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
+
+import { selectedOrganizationCodeState } from 'src/recoil/atom'
 
 type MainLayoutProps = {
   children?: ReactNode
@@ -28,6 +31,9 @@ type MainLayoutProps = {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { currentUser, logOut } = useAuth()
+  const [selectedOrganizationCode, setSelectedOrganizationCode] =
+    useRecoilState(selectedOrganizationCodeState)
+  const reset = useResetRecoilState(selectedOrganizationCodeState)
 
   return (
     <>
@@ -42,9 +48,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           />
           <HStack spacing={8} alignItems={'center'}>
             <Box>Logo</Box>
-            <Select bg="white" placeholder=" ">
+            <Select
+              bg="white"
+              placeholder=" "
+              onChange={(e) => {
+                if (!e.target.value) {
+                  reset()
+                  return
+                }
+                setSelectedOrganizationCode(e.target.value)
+              }}
+            >
               {currentUser.organizations.map((organization) => (
-                <option key={organization.id} value={organization.id}>
+                <option
+                  key={organization.id}
+                  value={organization.organizationCode}
+                  selected={
+                    organization.organizationCode === selectedOrganizationCode
+                  }
+                >
                   {organization.name}
                 </option>
               ))}
