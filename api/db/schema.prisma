@@ -1,24 +1,22 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = "native"
 }
 
 model Ability {
   id               String             @id @default(uuid())
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
-  name             String
+  name             String             @unique
   domain           Domain
   action           Action
-  roles            Role[]
   abilitiesOnRoles AbilitiesOnRoles[]
-
-  @@unique([name])
+  roles            Role[]
 }
 
 model Role {
@@ -27,19 +25,19 @@ model Role {
   updatedAt        DateTime           @updatedAt
   organizationCode String
   name             String
-  users            User[]
-  abilities        Ability[]
   abilitiesOnRoles AbilitiesOnRoles[]
+  abilities        Ability[]
+  users            User[]
 
   @@unique([organizationCode, name])
 }
 
 model AbilitiesOnRoles {
-  role       Role     @relation(fields: [roleId], references: [id])
   roleId     String
-  ability    Ability  @relation(fields: [abilityId], references: [id])
   abilityId  String
   assignedAt DateTime @default(now())
+  ability    Ability  @relation(fields: [abilityId], references: [id])
+  role       Role     @relation(fields: [roleId], references: [id])
 
   @@id([roleId, abilityId])
 }
@@ -57,16 +55,14 @@ model User {
   id                  String         @id @default(uuid())
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
-  organizations       Organization[]
   name                String?
-  email               String
+  email               String         @unique
   hashedPassword      String
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  organizations       Organization[]
   roles               Role[]
-
-  @@unique([email])
 }
 
 enum Action {
