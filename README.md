@@ -16,6 +16,8 @@ yarn add recoil
 docker-compose run -p 5432:5432 -d postgres
 yarn rw prisma migrate dev
 yarn rw prisma db seed
+yarn rw prisma migrate reset
+yarn rw prisma migrate reset --skip-seed
 
 docker exec -it <CONTAINER_ID> psql -U postgres
 ```
@@ -35,6 +37,12 @@ yarn rw g layout main
 
 # create a new stuff with scaffold
 yarn rw g scaffold post
+
+# create a new cell and generate its GraphQL schema
+yarn rw g sdl Organization
+yarn rw g cell Organization
+
+# and more..., https://redwoodjs.com/docs/cli-commands#generate-alias-g
 ```
 
 ### Frontend

@@ -28,16 +28,29 @@ export default async () => {
     await Promise.allSettled(promises)
     logger.debug({ data: {} }, 'Created abilities')
 
-    const organization = await db.organization.upsert({
-      where: {
-        organizationCode: '0000',
-      },
-      create: {
-        organizationCode: '0000',
-        name: 'sample organization',
-      },
-      update: {},
-    })
+    const organizations = await Promise.all(
+      [
+        {
+          organizationCode: '0001',
+          name: 'organization1',
+        },
+        {
+          organizationCode: '0002',
+          name: 'organization2',
+        },
+      ].map(({ organizationCode, name }) =>
+        db.organization.upsert({
+          where: {
+            organizationCode,
+          },
+          create: {
+            organizationCode,
+            name,
+          },
+          update: {},
+        })
+      )
+    )
     logger.debug({ data: {} }, 'Created organizations')
 
     const queryAbilities = await db.ability.findMany({
@@ -57,38 +70,46 @@ export default async () => {
       },
     })
 
-    await db.role.upsert({
-      where: {
-        organizationCode_name: {
-          organizationCode: '0000',
-          name: 'viewer',
-        },
-      },
-      create: {
-        organizationCode: '0000',
-        name: 'viewer',
-        abilities: {
-          connect: queryAbilities,
-        },
-      },
-      update: {},
-    })
-    const adminRole = await db.role.upsert({
-      where: {
-        organizationCode_name: {
-          organizationCode: '0000',
-          name: 'admin',
-        },
-      },
-      create: {
-        organizationCode: '0000',
-        name: 'admin',
-        abilities: {
-          connect: mutateAbilities,
-        },
-      },
-      update: {},
-    })
+    await Promise.all(
+      organizations.map(({ organizationCode }) =>
+        db.role.upsert({
+          where: {
+            organizationCode_name: {
+              organizationCode,
+              name: 'viewer',
+            },
+          },
+          create: {
+            organizationCode,
+            name: 'viewer',
+            abilities: {
+              connect: queryAbilities,
+            },
+          },
+          update: {},
+        })
+      )
+    )
+    const adminRoles = await Promise.all(
+      organizations.map(({ organizationCode }) =>
+        db.role.upsert({
+          where: {
+            organizationCode_name: {
+              organizationCode,
+              name: 'admin',
+            },
+          },
+          create: {
+            organizationCode,
+            name: 'admin',
+            abilities: {
+              connect: mutateAbilities,
+            },
+          },
+          update: {},
+        })
+      )
+    )
     logger.debug({ data: {} }, 'Created roles')
 
     const [hashedPassword, salt] = hashPassword('twixrox')
@@ -102,14 +123,10 @@ export default async () => {
         hashedPassword,
         salt,
         roles: {
-          connect: {
-            id: adminRole.id,
-          },
+          connect: adminRoles.map(({ id }) => ({ id })),
         },
         organizations: {
-          connect: {
-            id: organization.id,
-          },
+          connect: organizations.map(({ id }) => ({ id })),
         },
       },
       update: {},

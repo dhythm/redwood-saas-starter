@@ -1,7 +1,13 @@
+import { useRecoilValue } from 'recoil'
+
 import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import OrganizationCell from 'src/components/OrganizationCell'
+import { selectedOrganizationCodeState } from 'src/recoil/atom'
+
 const HomePage = () => {
+  const selectedOrganizationCode = useRecoilValue(selectedOrganizationCodeState)
   return (
     <>
       <MetaTags title="Home" description="Home page" />
@@ -14,6 +20,9 @@ const HomePage = () => {
         My default route is named <code>home</code>, link to me with `
         <Link to={routes.home()}>Home</Link>`
       </p>
+      {selectedOrganizationCode && (
+        <OrganizationCell organizationCode={selectedOrganizationCode} />
+      )}
     </>
   )
 }
