@@ -22,6 +22,14 @@ yarn rw prisma migrate reset --skip-seed
 docker exec -it <CONTAINER_ID> psql -U postgres
 ```
 
+### Create secure SESSION_SECRET
+Generate SESSION_SECRET and put it to `.env` or own environment variables.
+`yarn rw g dbAuth` automatically adds it to `.env`
+
+```sh
+yarn rw g secret
+```
+
 ### Run App
 ```sh
 yarn rw dev
