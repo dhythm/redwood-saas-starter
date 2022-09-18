@@ -54,3 +54,7 @@ yarn rw storybook
 ```sh
 yarn rw test
 ```
+
+### More
+RedwoodJS has been discussing the actual multi-tenancy feature.
+https://github.com/redwoodjs/redwood/issues/5821
